@@ -1,2 +1,4 @@
-# fugaku_sample
-Fugaku sample code
+# 富岳サンプルコード
+
+富岳上で動かすためのサンプルコード
+
