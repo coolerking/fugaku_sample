@@ -21,7 +21,7 @@ int main(int argc, char*argv[])
 {
   int total_iter;
   int n, rank, length, numprocs, i;
-  double mypi, pi, width, sum, x, rank_integral;
+  double pi, width, sum, x, rank_integral;
   char hostname[MPI_MAX_PROCESSOR_NAME];
 
   MPI_Init(&argc, &argv);                    // MPI初期化
