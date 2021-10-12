@@ -4,6 +4,10 @@
 
 貧学 (pugaku: Pi Cluster for Proletariat) は、富岳上でテスト実行する前に事前に開発・テストするためのRaspberry Pi クラスタ環境です。
 
+Spack 構築ベース環境やSlurmジョブスクリプトの開発・テストに活用可能です。
+
+> 富岳は`pjsub`でジョブ実行する富士通社製ジョブ管理ソフトウェアにて管理しているが、Slurmバッチスクリプトは富岳環境のものに類似しているので、ある程度はテストに使用可能。
+
 ## 構成
 
 ![pugaku outlook](./images/pugaku_outlook.jpg)
