@@ -36,3 +36,11 @@ Spack 構築ベース環境やSlurmジョブスクリプトの開発・テスト
 
 - [ログインノードセットアップ手順](./login_node.md)
 - [計算ノードセットアップ](./comp_node.md)
+
+## FAQ
+
+- `sinfo`しても計算ノードのSTATUSが`down`のままになる
+  - 以下のいずれかをためしてください
+    1. 該当計算ノードにて`sudo systemctl restart slurmd` を実行
+    2. ログインノードにて`sudo scontrol update nodename=node0[2-4] state=resume` を実行
+    3. ログインノードにて `sudo scontrol reconfigure` を実行
