@@ -13,6 +13,7 @@ import os
 print("TensorFlow version")
 print(tf.__version__)
 
+print("1. end")
 
 ## 2. Fashion MNIST データセットのダウンロード
 
@@ -31,6 +32,7 @@ test_images = test_images[..., None]
 train_images = train_images / np.float32(255)
 test_images = test_images / np.float32(255)
 
+print("2. end")
 
 ## 3. 変数とグラフを分散させるストラテジを作成
 
@@ -38,7 +40,7 @@ test_images = test_images / np.float32(255)
 # 指定されていない場合、自動検出される
 strategy = tf.distribute.MirroredStrategy()
 print ('Number of devices: {}'.format(strategy.num_replicas_in_sync))
-
+print("3. end")
 ## 4. 入力パイプラインのセットアップ
 
 BUFFER_SIZE = len(train_images)
@@ -54,7 +56,7 @@ test_dataset = tf.data.Dataset.from_tensor_slices((test_images, test_labels)).ba
 
 train_dist_dataset = strategy.experimental_distribute_dataset(train_dataset)
 test_dist_dataset = strategy.experimental_distribute_dataset(test_dataset)
-
+print("4. end")
 ## 5. モデルの作成
 def create_model():
     model = tf.keras.Sequential([
@@ -71,7 +73,7 @@ def create_model():
 # チェックポイント保存用ディレクトリの作成
 checkpoint_dir = './training_checkpoints'
 checkpoint_prefix = os.path.join(checkpoint_dir, "ckpt")
-
+print("5. end")
 ## 6. 損失関数の定義
 
 # 単一のCPU/GPUの場合、損失は入力バッチサンプル数で除算される
@@ -90,7 +92,7 @@ with strategy.scope():
     def compute_loss(labels, predictions):
         per_example_loss = loss_object(labels, predictions)
         return tf.nn.compute_average_loss(per_example_loss, global_batch_size=GLOBAL_BATCH_SIZE)
-
+print("6. end")
 ## 7. 損失と精度を追跡するメトリクスを定義
 with strategy.scope():
     test_loss = tf.keras.metrics.Mean(name='test_loss')
@@ -99,7 +101,7 @@ with strategy.scope():
         name='train_accuracy')
     test_accuracy = tf.keras.metrics.SparseCategoricalAccuracy(
         name='test_accuracy')
-
+print("7. end")
 ## 8. トレーニングループ
 # model, optimizer, checkpoint は `strategy.scope` の下で作成
 with strategy.scope():
@@ -108,7 +110,7 @@ with strategy.scope():
     optimizer = tf.keras.optimizers.Adam()
 
     checkpoint = tf.train.Checkpoint(optimizer=optimizer, model=model)
-
+print("8.1. end")
 def train_step(inputs):
     images, labels = inputs
 
@@ -144,7 +146,7 @@ def distributed_train_step(dataset_inputs):
 def distributed_test_step(dataset_inputs):
     # テスト１ステップの処理
     return strategy.run(test_step, args=(dataset_inputs,))
-
+print("8.2. end")
 for epoch in range(EPOCHS):
     # トレーニングループ
     total_loss = 0.0
@@ -171,7 +173,8 @@ for epoch in range(EPOCHS):
     test_loss.reset_states()
     train_accuracy.reset_states()
     test_accuracy.reset_states()
-
+    print("8.3. epoch loop {} step end".format(str(epoch)))
+print("8. end")
 ## 9. 最新チェックポイントを復元しテスト
 eval_accuracy = tf.keras.metrics.SparseCategoricalAccuracy(
     name='eval_accuracy')
@@ -189,14 +192,14 @@ def eval_step(images, labels):
 
 checkpoint = tf.train.Checkpoint(optimizer=new_optimizer, model=new_model)
 checkpoint.restore(tf.train.latest_checkpoint(checkpoint_dir))
-
+print("9.1. end")
 for images, labels in test_dataset:
     eval_step(images, labels)
 
 # 分散ストラテジなしで保存されたモデルを復元した後の精度を表示
 print ('Accuracy after restoring the saved model without strategy: {}'.format(
     eval_accuracy.result()*100))
-
+print("9. end")
 ## 10. データセットのイテレーションの代替方法
 '''
 # イテレータの使用
