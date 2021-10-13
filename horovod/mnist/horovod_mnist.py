@@ -52,7 +52,10 @@ opt = tf.optimizers.Adam(scaled_lr)
 
 # Horovod: add Horovod DistributedOptimizer.
 opt = hvd.DistributedOptimizer(
-    opt, backward_passes_per_step=1, average_aggregated_gradients=True)
+    ## default mnist sample
+    #opt, backward_passes_per_step=1, average_aggregated_gradients=True)
+    ## when use fugaku:/home/apps/oss/TensorFlow-2.2.0
+    opt)
 
 # Horovod: Specify `experimental_run_tf_function=False` to ensure TensorFlow
 # uses hvd.DistributedOptimizer() to compute gradients.
