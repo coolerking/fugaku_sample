@@ -1,6 +1,6 @@
 # 貧岳: Pugaku (Pi Cluster for Proletariat)
 
-![Pugaku: Pi Cluster for Proletariat](./images/pugaku.png)
+<div align="right"><img src="./images/pugaku.png" alt="Pugaku: Pi Cluster for Proletariat" width="30%"/></div>
 
 貧学 (pugaku: Pi Cluster for Proletariat) は、富岳上でテスト実行する前に事前に開発・テストするためのRaspberry Pi クラスタ環境です。
 
@@ -10,7 +10,7 @@ Spack 構築ベース環境やSlurmジョブスクリプトの開発・テスト
 
 ## 構成
 
-![pugaku outlook](./images/pugaku_outlook.jpg)
+<div align="center"><img src="./images/pugaku_outlook.jpg" alt="pugaku outlook" width="40%" /></div>
 
 - ログインノード/NFSサーバ/NISマスタ/Slurmマスタ/NTPクライアント
   - Raspberry Pi 4/2GB x 1
@@ -33,6 +33,8 @@ Spack 構築ベース環境やSlurmジョブスクリプトの開発・テスト
     - apt/pip/ssh/scp/ntp
 
 ## セットアップ
+
+<div align="center"><img src="./images/pugaku_nw.png" alt="貧岳システム構成" width="80%"/></div>
 
 - [ログインノードセットアップ手順](./login_node.md)
 - [計算ノードセットアップ](./comp_node.md)

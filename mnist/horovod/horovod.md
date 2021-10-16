@@ -3,12 +3,12 @@
 > **訳者注**
 > この文書は [Horovod GitHub](https://github.com/horovod/horovod) トップの README.rst を、20201年10月7日に翻訳したものです。
 
-![Horovod Logo](./horovod_title.png)
+<div align="right"><img src="./horovod_title.png" alt="Horovod Logo" width="20%" /></div>
 
 Horovodは、TensorFlow、Keras、PyTorch、ApacheMXNet向けの分散型ディープラーニングトレーニングフレームワークです。
 Horovodの目標は、分散型ディープラーニングを高速で使いやすくすることです。
 
-![LF AU & Data Foundation](./ai_and_data.png)
+<div align="left"><img src="./ai_and_data.png" alt="LF AU & Data Foundation" width="20%" /></div>
 
 Horovodは、[LF AI&Data Foundation](https://lfdl.io/)（LF AI＆Data）によってホストされています。
 人工知能、機械学習、ディープラーニングでオープンソーステクノロジを使用することに熱心に取り組んでおり、これらのドメインのオープンソースプロジェクトのコミュニティをサポートしたい場合は、LF AI&DataFoundationへの参加を検討してください。

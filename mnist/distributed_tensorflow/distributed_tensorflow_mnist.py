@@ -6,19 +6,14 @@ https://github.com/tensorflow/docs-l10n/blob/master/site/ja/tutorials/distribute
 """
 ## 1. TensorFlowのインポート
 import tensorflow as tf
-
 import numpy as np
 import os
-
 print("TensorFlow version")
 print(tf.__version__)
 
-print("1. end")
 
 ## 2. Fashion MNIST データセットのダウンロード
-
 fashion_mnist = tf.keras.datasets.fashion_mnist
-
 (train_images, train_labels), (test_images, test_labels) = fashion_mnist.load_data()
 
 # 配列へのディメンション追加 → 新しい形状: (28, 28, 1)
@@ -32,31 +27,25 @@ test_images = test_images[..., None]
 train_images = train_images / np.float32(255)
 test_images = test_images / np.float32(255)
 
-print("2. end")
-
 ## 3. 変数とグラフを分散させるストラテジを作成
-
 # デバイスリストが `tf.distribute.MirroredStrategy`コンストラクタで
 # 指定されていない場合、自動検出される
 strategy = tf.distribute.MirroredStrategy()
 print ('Number of devices: {}'.format(strategy.num_replicas_in_sync))
-print("3. end")
+
 ## 4. 入力パイプラインのセットアップ
-
 BUFFER_SIZE = len(train_images)
-
 BATCH_SIZE_PER_REPLICA = 64
 GLOBAL_BATCH_SIZE = BATCH_SIZE_PER_REPLICA * strategy.num_replicas_in_sync
-
 EPOCHS = 10
-
 # データセットの作成
-train_dataset = tf.data.Dataset.from_tensor_slices((train_images, train_labels)).shuffle(BUFFER_SIZE).batch(GLOBAL_BATCH_SIZE) 
-test_dataset = tf.data.Dataset.from_tensor_slices((test_images, test_labels)).batch(GLOBAL_BATCH_SIZE) 
-
+train_dataset = tf.data.Dataset.from_tensor_slices(
+    (train_images, train_labels)).shuffle(BUFFER_SIZE).batch(GLOBAL_BATCH_SIZE) 
+test_dataset = tf.data.Dataset.from_tensor_slices(
+    (test_images, test_labels)).batch(GLOBAL_BATCH_SIZE) 
 train_dist_dataset = strategy.experimental_distribute_dataset(train_dataset)
 test_dist_dataset = strategy.experimental_distribute_dataset(test_dataset)
-print("4. end")
+
 ## 5. モデルの作成
 def create_model():
     model = tf.keras.Sequential([
@@ -69,20 +58,17 @@ def create_model():
         tf.keras.layers.Dense(10)
     ])
     return model
-
 # チェックポイント保存用ディレクトリの作成
 checkpoint_dir = './training_checkpoints'
 checkpoint_prefix = os.path.join(checkpoint_dir, "ckpt")
-print("5. end")
-## 6. 損失関数の定義
 
+## 6. 損失関数の定義
 # 単一のCPU/GPUの場合、損失は入力バッチサンプル数で除算される
 # 分散ストラテジの場合は
 # - 4GPU、バッチサイズ64の場合、1つの入力バッチは4つに分散されるので各レプリカは16の入力になる
 # - 各レプリカモデルは、各々の入力でフォワードパスを実行し、損失を計算するが、
 #   それぞれの入力サンプル数(BATCH_SIZE_PER_REPLICA=16)で除算するのではなく
 #   損失をGLOBAL_BATCH_SIZE(=64)で除算する必要がある
-
 with strategy.scope():
     # リダクションを `none`に設定して、後でリダクションを実行し、
     # グローバルバッチサイズで除算できるようにする
@@ -92,7 +78,7 @@ with strategy.scope():
     def compute_loss(labels, predictions):
         per_example_loss = loss_object(labels, predictions)
         return tf.nn.compute_average_loss(per_example_loss, global_batch_size=GLOBAL_BATCH_SIZE)
-print("6. end")
+
 ## 7. 損失と精度を追跡するメトリクスを定義
 with strategy.scope():
     test_loss = tf.keras.metrics.Mean(name='test_loss')
@@ -101,7 +87,7 @@ with strategy.scope():
         name='train_accuracy')
     test_accuracy = tf.keras.metrics.SparseCategoricalAccuracy(
         name='test_accuracy')
-print("7. end")
+
 ## 8. トレーニングループ
 # model, optimizer, checkpoint は `strategy.scope` の下で作成
 with strategy.scope():
@@ -110,7 +96,7 @@ with strategy.scope():
     optimizer = tf.keras.optimizers.Adam()
 
     checkpoint = tf.train.Checkpoint(optimizer=optimizer, model=model)
-print("8.1. end")
+
 def train_step(inputs):
     images, labels = inputs
 
@@ -146,7 +132,7 @@ def distributed_train_step(dataset_inputs):
 def distributed_test_step(dataset_inputs):
     # テスト１ステップの処理
     return strategy.run(test_step, args=(dataset_inputs,))
-print("8.2. end")
+
 for epoch in range(EPOCHS):
     # トレーニングループ
     total_loss = 0.0
