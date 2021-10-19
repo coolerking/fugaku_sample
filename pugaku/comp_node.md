@@ -1,5 +1,3 @@
-**作業中**
-
 # 貧岳計算ノード(node0[2-4])インストール手順
 
 ## 必要なもの
@@ -20,7 +18,7 @@
 - SDカードルートディレクトリ上に空のファイル `ssh` を作成
 - SDカードルートディレクトリ上に `wpa_supplicant.conf` を作成し以下のようにWiFiルータ設定を書き込み保存
 
-```
+```sh
 country=JP
 ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
 update_config=1
@@ -39,7 +37,7 @@ network={
 
 - `sudo apt-get update && sudo apt-get upgrade -y`
 - `sudo raspi-config` を実行し以下の設定を実施
-  - hostnameに `node01` を設定
+  - hostnameに `node02` ～ `node04` を設定
   - `pi` ユーザのパスワードを設定（全ノード同じにしておくと楽）
   - 使用するインターフェイスを有効化（Camera、I2C、Wireress GPIOなど)
   - OpenGLを使用する場合などは GL>Fake GL
@@ -47,20 +45,37 @@ network={
 - `sudo apt-get install -y build-essential python3 python3-dev python3-pip python3-virtualenv python3-numpy python3-picamera python3-pandas python3-rpi.gpio i2c-tools avahi-utils joystick libopenjp2-7-dev libtiff5-dev gfortran libatlas-base-dev libopenblas-dev libhdf5-serial-dev libgeos-dev git ntp libilmbase-dev libopenexr-dev libgstreamer1.0-dev libjasper-dev libwebp-dev libatlas-base-dev libavcodec-dev libavformat-dev libswscale-dev libqtgui4 libqt4-test ntpdate nfs-kernel-server`
 - `sudo vi /etc/hosts` を実行し以下の行を追加
 
-```
+```sh
 ## pugaku
-10.0.0.1	node01
-10.0.0.2	node02
-10.0.0.3	node03
-10.0.0.4	node04
+10.0.0.1 node01
+10.0.0.2 node02
+10.0.0.3 node03
+10.0.0.4 node04
 ```
 
 - `sudo vi /etc/dhcpcd.conf` を実行し以下の行を挿入
 
-```
+`node02` の場合：
+
+```sh
 interface eth0
-static ip_address=10.0.0.1/8
+static ip_address=10.0.0.2/8
 ```
+
+`node03` の場合：
+
+```sh
+interface eth0
+static ip_address=10.0.0.3/8
+```
+
+`node04` の場合：
+
+```sh
+interface eth0
+static ip_address=10.0.0.4/8
+```
+
 - 以下のコマンドを実行し、作業用共有ディレクトリを作成
 
 ```bash
@@ -69,54 +84,30 @@ sudo chown nobody.nogroup -R /clusterfs
 sudo chmod 777 -R /clusterfs
 ```
 
-sudo apt-get update && sudo apt-get upgrade -y && sudo raspi-config
+- `sudo reboot` を実行し再度ログイン
+- `ping node01` を実行して、ネットワーク設定が有効かどうかを確認
+- `sudo vi /etc/fstab` を実行し以下の2行を追加
 
-hostname->node01
-Camera, I2C, Wireress GPIO on
-GL>Fake GL
-reboot
+```sh
+node01:/home      /home       nfs defaults 0 0
+node01:/clusterfs /clusterfs  nfs defaults 0 0
+```
 
-sudo apt-get install -y build-essential python3 python3-dev python3-pip python3-virtualenv python3-numpy python3-picamera python3-pandas python3-rpi.gpio i2c-tools avahi-utils joystick libopenjp2-7-dev libtiff5-dev gfortran libatlas-base-dev libopenblas-dev libhdf5-serial-dev libgeos-dev git ntp libilmbase-dev libopenexr-dev libgstreamer1.0-dev libjasper-dev libwebp-dev libatlas-base-dev libavcodec-dev libavformat-dev libswscale-dev libqtgui4 libqt4-test
+- `sudo mount -a` を実行しマウント
+- `df` でマウントされているか確認
 
-sudo vi /etc/hosts
+## Slurm クライアントのインストール
 
-## pugaku
-10.0.0.1	node01
-10.0.0.2	node02
-10.0.0.3	node03
-10.0.0.4	node04
+- `sudo apt-get install slurmd slurm-client -y` を実行し、パッケージをインストール
+- `sudo vi /etc/tmpfiles.d/slurm.conf` を実行し、以下の1行を追加
 
-sudo vi /etc/dhcpcd.conf
-
-interface eth0
-static ip_address=10.0.0.[2-4]/8
-
-sudo apt-get install ntpdate nfs-kernel-server -y
-
-sudo mkdir /clusterfs
-sudo chown nobody.nogroup -R /clusterfs
-sudo chmod 777 -R /clusterfs
-
-ping node01
-
-sudo vi /etc/fstab
-
-node01:/home		/home		nfs	defaults	0	0
-node01:/clusterfs	/clusterfs	nfs	defaults	0	0
-
-sudo mount -a
-
-df
-
-************************************************************ TBD
-
-sudo apt-get install slurmd slurm-client -y
-
-sudo vi /etc/tmpfiles.d/slurm.conf
-
+```sh
 d /run/slurm 0770 root slurm -
+```
 
+- 以下のコマンドを実行し、`node01` で作成した設定を反映し認証機能を有効化
 
+```bash
 sudo cp /clusterfs/munge.key /etc/munge/munge.key
 sudo cp /clusterfs/slurm.conf /etc/slurm-llnl/slurm.conf
 sudo cp /clusterfs/cgroup* /etc/slurm-llnl
@@ -131,8 +122,13 @@ sudo chown -R slurm:slurm /var/log/slurm-llnl
 
 sudo systemctl enable munge
 sudo systemctl start munge
+```
 
+- `ssh node01 munge -n | unmunge` を実行し動作を確認
 
+`node03` の場合：
+
+```bash
 pi@comp0X:~ $ ssh node01 munge -n | unmunge
 The authenticity of host 'comp01 (10.0.0.11)' can't be established.
 ECDSA key fingerprint is SHA256:ShUSjehA+I6ZDGqM9NBcfTIybeq6Yk+d+pGoRumgeTk.
@@ -140,7 +136,7 @@ Are you sure you want to continue connecting (yes/no)? yes
 Warning: Permanently added 'comp01,10.0.0.11' (ECDSA) to the list of known hosts.
 pi@comp01's password:
 STATUS:           Success (0)
-ENCODE_HOST:      comp03 (127.0.1.1)
+ENCODE_HOST:      node03 (127.0.1.1)
 ENCODE_TIME:      2021-10-04 03:18:25 +0100 (1633313905)
 DECODE_TIME:      2021-10-04 03:18:25 +0100 (1633313905)
 TTL:              300
@@ -150,7 +146,11 @@ ZIP:              none (0)
 UID:              pi (1000)
 GID:              pi (1000)
 LENGTH:           0
+```
 
+- 以下のコマンドを実行し、Slurmクライアントを有効化
+
+```bash
 sudo systemctl enable slurmd
 sudo find / -name slurmd.service -print
 sudo vi /etc/systemd/system/multi-user.target.wants/slurmd.service
@@ -160,23 +160,34 @@ PIDFile=/run/slurm/slurmd.pid
 sudo systemctl daemon-reload
 sudo systemctl start slurmd
 sudo systemctl status slurmd
+```
 
-sudo reboot
+- `sudo reboot` を実行して再起動、再ログイン
 
+## NIS クライアントのインストール
+
+- 以下のコマンドを実行し、NISをインストール
+
+```bash
 sudo apt-get install nis -y
-
 pugaku
+```
 
-sudo vi /etc/yp.conf
+- `sudo vi /etc/yp.conf` を実行し、以下の1行を追加
 
+```sh
 ypserver node01
+```
 
-sudo vi /etc/defaultdomain
+- `sudo vi /etc/defaultdomain` を実行し、次の1行を追加、NISドメインを設定
 
+```bash
 pugaku
+```
 
-sudo vi /etc/nsswitch.conf
+- `sudo vi /etc/nsswitch.conf` を実行し、以下のように編集して参照順番を設定
 
+```sh
 passwd:         nis files
 group:          nis files
 shadow:         nis files
@@ -184,16 +195,23 @@ gshadow:        nis files
 
 hosts:          nis files mdns4_minimal [NOTFOUND=return] dns
 networks:       nis files
+```
 
+- 以下のコマンドを実行し、NIS クライアントを再起動
+
+```bash
 sudo systemctl enable rpcbind
 sudo systemctl restart rpcbind
+```
 
+> **注意**
+> ここまでの手順をすべての計算ノードに対して実行する。
 
+## Slurm のテスト
 
+- `node01` にログインして、`sinfo` を実行する
 
-・テスト
-node01にログイン
-
+```bash
 pi@node01:~ $ sinfo
 PARTITION AVAIL  TIMELIMIT  NODES  STATE NODELIST
 debug        up   infinite      1   idle node01
@@ -213,7 +231,18 @@ node02
 node03
 node04
 pi@node01:~ $
+```
 
+> **注意**
+>
+> `sinfo`しても計算ノードのSTATUSが`down`のままになる場合は、以下のいずれかをためしてください。
+>
+> 1. 該当計算ノードにて`sudo systemctl restart slurmd` を実行
+> 2. ログインノードにて`sudo scontrol update nodename=node0[2-4] state=resume` を実行
+> 3. ログインノードにて `sudo scontrol reconfigure` を実行
 
+上記以外のSlurm 機能を試したい人は [チートシート](https://slurm.schedmd.com/pdfs/summary.pdf) を参照のこと。
 
+## 前のステップ
 
+- [ログインノードのインストール手順](./login_node.md)

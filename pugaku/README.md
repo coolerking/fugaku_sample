@@ -32,12 +32,12 @@ Spack 構築ベース環境やSlurmジョブスクリプトの開発・テスト
     - インターネットに接続可能なWiFiルータとの接続
     - apt/pip/ssh/scp/ntp
 
-## セットアップ
+## インストール手順
 
 <div align="center"><img src="./images/pugaku_nw.png" alt="貧岳システム構成" width="80%"/></div>
 
-- [ログインノードセットアップ手順](./login_node.md)
-- [計算ノードセットアップ](./comp_node.md)
+1. [ログインノードインストール手順](./login_node.md)
+2. [計算ノードインストール手順](./comp_node.md)
 
 ## FAQ
 
@@ -46,3 +46,7 @@ Spack 構築ベース環境やSlurmジョブスクリプトの開発・テスト
     1. 該当計算ノードにて`sudo systemctl restart slurmd` を実行
     2. ログインノードにて`sudo scontrol update nodename=node0[2-4] state=resume` を実行
     3. ログインノードにて `sudo scontrol reconfigure` を実行
+
+## 参考
+
+- [Slurm チートシート](https://slurm.schedmd.com/pdfs/summary.pdf)

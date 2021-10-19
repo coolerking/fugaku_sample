@@ -13,12 +13,12 @@
 
 - ログインノード用Raspberry PiにLANケーブルを接続しネットワークハブに接続
 - SDカードをSDCardフォーマッタなどでフォーマット
-- https://www.raspberrypi.com/software/ から最新版Raspberry Pi OS Lite イメージをダウンロード＆展開
+- [https://www.raspberrypi.com/software/](https://www.raspberrypi.com/software/) から最新版Raspberry Pi OS Lite イメージをダウンロード＆展開
 - Win32DiskImagerなどでSDカードへイメージ書き込み
 - SDカードルートディレクトリ上に空のファイル `ssh` を作成
 - SDカードルートディレクトリ上に `wpa_supplicant.conf` を作成し以下のようにWiFiルータ設定を書き込み保存
 
-```
+```text
 country=JP
 ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
 update_config=1
@@ -45,20 +45,21 @@ network={
 - `sudo apt-get install -y build-essential python3 python3-dev python3-pip python3-virtualenv python3-numpy python3-picamera python3-pandas python3-rpi.gpio i2c-tools avahi-utils joystick libopenjp2-7-dev libtiff5-dev gfortran libatlas-base-dev libopenblas-dev libhdf5-serial-dev libgeos-dev git ntp libilmbase-dev libopenexr-dev libgstreamer1.0-dev libjasper-dev libwebp-dev libatlas-base-dev libavcodec-dev libavformat-dev libswscale-dev libqtgui4 libqt4-test ntpdate nfs-kernel-server`
 - `sudo vi /etc/hosts` を実行し以下の行を追加
 
-```
+```text
 ## pugaku
-10.0.0.1	node01
-10.0.0.2	node02
-10.0.0.3	node03
-10.0.0.4	node04
+10.0.0.1 node01
+10.0.0.2 node02
+10.0.0.3 node03
+10.0.0.4 node04
 ```
 
 - `sudo vi /etc/dhcpcd.conf` を実行し以下の行を挿入
 
-```
+```text
 interface eth0
 static ip_address=10.0.0.1/8
 ```
+
 - 以下のコマンドを実行し、作業用共有ディレクトリを作成
 
 ```bash
@@ -69,9 +70,9 @@ sudo chmod 777 -R /clusterfs
 
 - `sudo vi /etc/exports` を実行し `/home` と `/clusterfs` をNFSエクスポート設定を実施
 
-```
+```text
 /home           10.0.0.0/8(rw,sync,no_root_squash,no_subtree_check)
-/clusterfs	10.0.0.0/8(rw,sync,no_root_squash,no_subtree_check)
+/clusterfs      10.0.0.0/8(rw,sync,no_root_squash,no_subtree_check)
 ```
 
 - `sudo exportfs -a` を実行し、NFS可能にする
@@ -79,10 +80,10 @@ sudo chmod 777 -R /clusterfs
 
 ## SLURM マスタセットアップ
 
-- `sudo apt-get install slurm-wlm -y`
+- `sudo apt-get install slurm-wlm sview -y`
 - `sudo vi /etc/tmpfiles.d/slurm.conf` を実行し、以下の行を追加し保存
 
-```
+```text
 d /run/slurm 0770 root slurm -
 ```
 
@@ -97,7 +98,7 @@ sudo mv slurm.conf.simple slurm.conf
 
 - `sudo vi /etc/slurm-llnl/slurm.conf` を実行し、設定を追加もしくは変更し保存
 
-```
+```text
 :
 SlurmctldHost=node01(10.0.0.1)
 :
@@ -117,7 +118,7 @@ PartitionName=comp Nodes=node0[2-4] Default=YES MaxTime=INFINITE State=UP
 
 - `sudo vi /etc/slurm-llnl/cgroup.conf` を実行し、以下の行を追加して保存
 
-```
+```text
 CgroupMountpoint="/sys/fs/cgroup"
 CgroupAutomount=yes
 CgroupReleaseAgentDir="/etc/slurm-llnl/cgroup"
@@ -136,7 +137,7 @@ MinRAMSpace=30
 
 - `sudo vi /etc/slurm-llnl/cgroup_allowed_devices_file.conf` を実行し、以下の行を追加して保存
 
-```
+```text
 /dev/null
 /dev/urandom
 /dev/zero
@@ -203,15 +204,15 @@ sudo systemctl status slurmctld
   - ドメイン名には `pugaku` を指定
 - `sudo vi /etc/ypserv.securenets` を実行し、コメントアウト及び追加し保存(XXはWiFiルータの使用するセグメントに適宜変更）
 
-```
-#0.0.0.0                0.0.0.0
+```text
+#0.0.0.0        0.0.0.0
 255.0.0.0       10.0.0.0
 255.255.255.0   192.168.XX.0
 ```
 
 - `sudo vi /etc/default/nis` を実行し、以下の行を変更し保存
 
-```
+```text
 :
 NISSERVER=master
 :
@@ -245,7 +246,7 @@ mkdir -p ~/.dsh/group
 
 - `vi ~/.dsh/group/comp` を実行し、以下の行を追加して保存
 
-```
+```text
 10.0.0.2
 10.0.0.3
 10.0.0.4
@@ -253,3 +254,8 @@ mkdir -p ~/.dsh/group
 
 - `pdsh -g comp hostname` を実行してテスト
 
+## 次のステップ
+
+以下の手順をすべての計算ノードに対して実施。
+
+- [計算ノードのインストール手順](./comp_node.md)
