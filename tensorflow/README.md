@@ -66,6 +66,13 @@
 source ${HOME}/.local/aarch64/venv/tensorflow/bin/activate
 ```
 
+## 備考
+
+- インストールされる tcl/tk は、富士通コンパイラではなく、gccコンパイラによりビルドされている(Python/TensorFlowは富士通コンパイラでビルドされる)
+- ビルドされるTensorFlowはGPUは使用できない(計算ノードにはGPUが搭載されていない)かわりにoneDNNを使用する
+- 上記手順を実行するとPython上でMPI相当の実装が可能になる [horovod](https://github.com/horovod/horovod) パッケージもあわせて構築される
+- TensorFlow 2.2.0 には、mesh-tensorflow が未実装のバージョンのため使用できない
+
 ## ライセンス
 
 [Apache2.0 ライセンス](../LICENSE) 準拠とする。
