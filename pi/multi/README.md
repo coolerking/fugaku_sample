@@ -20,15 +20,21 @@ make clean all
 ### 富岳計算ノード
 
 - ログインノードにログイン
+- 各自のアカウント情報に基づき、 `MPI_Pi.sh` の `rscunit` を変更
+
+```bash
+#PJM --rsc-list "rscunit=rscunit_ft01"
+```
+
 - ジョブ開始・終了時メールを送信したい場合 `MPI_Pi.sh` の以下の行を修正
 
 ```bash
-##PJM --mail-list "hogehoge@fugafuga.slack.com"
+#PJM --mail-list "hogehoge@fugafuga.slack.com"
 ```
 
-- `pjsub ./MPI_Pi.sh`
+- `pjsub ./MPI_Pi.sh` を実行
 
-> 実行は富岳計算ノード（１ノード）で実行される。
+> 実行は富岳計算ノード（４ノード、各ノード４プロセス＝１６プロセス）で実行される。
 
 ## 注意
 

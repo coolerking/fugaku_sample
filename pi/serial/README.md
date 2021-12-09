@@ -20,10 +20,16 @@ make clean all
 ### 富岳計算ノード
 
 - ログインノードにログイン
+- 各自のアカウント情報に基づき、 `C_Pi.sh` の `rscunit` を変更
+
+```bash
+#PJM --rsc-list "rscunit=rscunit_ft01"
+```
+
 - ジョブ開始・終了時メールを送信したい場合 `C_Pi.sh` の以下の行を修正
 
 ```bash
-##PJM --mail-list "hogehoge@fugafuga.slack.com"
+#PJM --mail-list "hogehoge@fugafuga.slack.com"
 ```
 
 - `pjsub ./C_Pi.sh`

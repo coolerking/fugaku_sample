@@ -10,19 +10,25 @@
 
 export OMP_NUM_THREADS=12
 
+TARGET=./MPI_Pi
+
 module purge
 module load lang/tcsds-1.2.33
 
 # Load to cache
-llio_transfer ./MPI_Pi
+llio_transfer ${TARGET}
 
-echo "** start MPI_Pi **"
+echo "** start ${TARGET} **"
 date
+
 # execute for multiple process
 mpiexec -n 16 ./MPI_Pi
+RETCODE=$@
+
 date
-echo "** end   MPI_Pi **"
+echo "** end   ${TARGET} **"
 
 ##
 # eof
 ##
+exit ${RETCODE}
